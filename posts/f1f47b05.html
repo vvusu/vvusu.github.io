@@ -1,0 +1,262 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Flutter 使用ffi来提高通信效率 | VVUSU</title><meta name="author" content="vvusu"><meta name="copyright" content="vvusu"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="背景开眼项目是一个纯Flutter开发的项目，并且使用Flutter开发了MV模版视频以及通用视频的编辑的功能。为了实现这些功能是怎样与音视频SDK去做通信的呢？ 开眼项目前期接入编辑SDK是通过 Channel 调用编辑SDK提供的 Android与iOS 层接口的实现来与底层音视频SDK进行通信的，如图所示：  Flutter 通过使用 grpc 分别传递到信息给到原生层 Android与iO">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flutter 使用ffi来提高通信效率">
+<meta property="og:url" content="http://blog.vvusu.com/posts/f1f47b05.html">
+<meta property="og:site_name" content="VVUSU">
+<meta property="og:description" content="背景开眼项目是一个纯Flutter开发的项目，并且使用Flutter开发了MV模版视频以及通用视频的编辑的功能。为了实现这些功能是怎样与音视频SDK去做通信的呢？ 开眼项目前期接入编辑SDK是通过 Channel 调用编辑SDK提供的 Android与iOS 层接口的实现来与底层音视频SDK进行通信的，如图所示：  Flutter 通过使用 grpc 分别传递到信息给到原生层 Android与iO">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150125130.jpeg">
+<meta property="article:published_time" content="2022-08-10T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-18T03:23:37.121Z">
+<meta property="article:author" content="vvusu">
+<meta property="article:tag" content="工具">
+<meta property="article:tag" content="开发">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150125130.jpeg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://blog.vvusu.com/posts/f1f47b05.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//static.cloudflareinsights.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="google5d6de2274e3c7e7c.html"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7021409880699000',
+  enable_page_level_ads: 'true'
+});</script><script defer="defer" data-pjax="data-pjax" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;bde1138de50c4f508070984fedad460e&quot;}"></script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found"}},
+  translate: {"defaultEncoding":1,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: true,
+    post: true
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"Author: vvusu","link":"Link: ","source":"Source: VVUSU","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source."}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Flutter 使用ffi来提高通信效率',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-10-18 11:23:37'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="VVUSU" type="application/atom+xml">
+</head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.gif" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movie/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150125130.jpeg')"><nav id="nav"><span id="blog-info"><a href="/" title="VVUSU"><span class="site-name">VVUSU</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movie/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Flutter 使用ffi来提高通信效率</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2022-08-10T16:00:00.000Z" title="Created 2022-08-11 00:00:00">2022-08-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-10-18T03:23:37.121Z" title="Updated 2023-10-18 11:23:37">2023-10-18</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Flutter 使用ffi来提高通信效率"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>开眼项目是一个纯Flutter开发的项目，并且使用Flutter开发了MV模版视频以及通用视频的编辑的功能。为了实现这些功能是怎样与音视频SDK去做通信的呢？</p>
+<p>开眼项目前期接入编辑SDK是通过 Channel 调用编辑SDK提供的 Android与iOS 层接口的实现来与底层音视频SDK进行通信的，如图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/202309110038001.png" alt="Untitled"></p>
+<p>Flutter 通过使用 grpc 分别传递到信息给到原生层 Android与iOS，然后再使用编辑SDK内部提供的两端中间层去与底层C层去通信的。<br>但是使用这种 Channel 方案会存在两个问题，一个就是在获取缩略图的场景下，Android端的图片需要先在jvm层拷贝一次，然后在传输到Flutter层这样jvm就会申请多余的内存，而且这个过程中也会消耗额外的像素拷贝时间。另一点就是在项目中业务这边需要写大量的Channel代码，基本上编辑SDK的每个接口都需要对应的写个Channel接口。</p>
+<h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><p>那么如何解决以上提到的这种问题呢？</p>
+<p>了解到 Flutter 在1.10版本以后，官方支持了 dart：ffi 功能，使得 dart 可以调用 c&#x2F;c++ 代码成为了可能。<br>与音视频中台沟通后计划通过 ffi 的方式提供面向 Flutter 的接口，这样业务只需要调用编辑SDK提供出来的 Flutter 层接口就行不用在使用 Channel 的方式来通信了。流程如下图：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/202309110038002.png" alt="Untitled"></p>
+<p>这种新的方式使得业务接入成本与原生接入基本一致。同时编辑SDK内部通过 ffi 与 c&#x2F;c++ 层通信，直接将数据通过 ffi 返回到flutter层解决了冗余内存和效率的问题。</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>在实现ffi方案的时候总结了一些问题。</p>
+<h3 id="异步通信问题"><a href="#异步通信问题" class="headerlink" title="异步通信问题"></a>异步通信问题</h3><p>在Flutter版本以前是无法进行异步通信的，原因是Flutter使用Dart语言是单线程的，Dart里面有个isolate的模块类似线程是一个典型的C&#x2F;S架构只允许端口间通信。在Flutter 1.12版本上看相关的函数被strip，无法直接调用以下接口：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">DART_EXPORT Dart_Port Dart_NewNativePort(const char* name,Dart_NativeMessageHandler handler,bool handle_concurrently);</span><br><span class="line"></span><br><span class="line">DART_EXPORT bool Dart_PostCObject(Dart_Port port_id, Dart_CObject* message);</span><br><span class="line"></span><br><span class="line">DART_EXPORT bool Dart_CloseNativePort(Dart_Port native_port_id);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Flutter 1.17版本以上Dart层暴露了对应的函数指针,这样就可以不用修改Flutter的引擎就可以直接使用了，下面是整个异步的流程：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/202309110038003.png" alt="Untitled"></p>
+<h3 id="缓存jni环境"><a href="#缓存jni环境" class="headerlink" title="缓存jni环境"></a>缓存jni环境</h3><p>使用ffi后dart层与c层就直接通信了也不需要Android的jni环境。但是c层中某些时候也需要调用平台侧的一些代码，比如Android硬编硬解接口的调用。这时候c层再去调用java方法的时候就遇到了没有jni环境的问题，如下图：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/202309110038004.png" alt="Untitled"></p>
+<p>解决办法就是初始化的时候要把jni环境缓存下来以便下次能够直接调用。但是由于调用线程不一样，直接缓存的jni环境在实时使用的时候不一定能用。<br>有两种方式可以解决，一种是在初始化的时候把需要调用的硬编硬解class和method都先find后缓存下来，需要调用的时候直接用；第二种是缓存classloader，由于java加载类的核心是classloader，那么其实把classloader缓存下来也就能findClass，jniEnv在调用的时候在通过JavaVM创建一个新的就行。</p>
+<p>缓存classloader的方式代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">SetJavaVm</span><span class="params">(JavaVM* vm)</span> &#123;</span><br><span class="line">  javaVM = vm;</span><br><span class="line">#<span class="keyword">if</span> <span class="title function_">defined</span><span class="params">(BUILD_WITH_FLUTTER)</span> &amp;&amp; KSE_OS_ANDROID</span><br><span class="line">  JNIEnv* env = GetEnv();</span><br><span class="line">  <span class="comment">//it can be anyone of class</span></span><br><span class="line">  <span class="type">auto</span> <span class="variable">randomClass</span> <span class="operator">=</span> env-&gt;FindClass(<span class="string">&quot;com/kwai/video/editorsdk2/EditorSdk2Utils&quot;</span>);</span><br><span class="line">  <span class="type">jclass</span> <span class="variable">classClass</span> <span class="operator">=</span> env-&gt;GetObjectClass(randomClass);</span><br><span class="line">  <span class="type">auto</span> <span class="variable">classLoaderClass</span> <span class="operator">=</span> env-&gt;FindClass(<span class="string">&quot;java/lang/ClassLoader&quot;</span>);</span><br><span class="line">  <span class="type">auto</span> <span class="variable">getClassLoaderMethod</span> <span class="operator">=</span> env-&gt;GetMethodID(classClass, <span class="string">&quot;getClassLoader&quot;</span>,</span><br><span class="line">                                               <span class="string">&quot;()Ljava/lang/ClassLoader;&quot;</span>);</span><br><span class="line">  gClassLoader = env-&gt;NewGlobalRef(env-&gt;CallObjectMethod(randomClass, getClassLoaderMethod));</span><br><span class="line">  gFindClassMethod = env-&gt;GetMethodID(classLoaderClass, <span class="string">&quot;findClass&quot;</span>,</span><br><span class="line">                                      <span class="string">&quot;(Ljava/lang/String;)Ljava/lang/Class;&quot;</span>);</span><br><span class="line">#endif</span><br><span class="line">  <span class="title function_">if</span> <span class="params">(vm != nullptr)</span> &#123;</span><br><span class="line">    <span class="keyword">assert</span>(!pthread_once(&amp;g_jni_ptr_once, &amp;CreateJNIPtrKey));</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    pthread_key_delete(g_jni_ptr_once);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">#<span class="keyword">if</span> <span class="title function_">defined</span><span class="params">(BUILD_WITH_FLUTTER)</span> &amp;&amp; KSE_OS_ANDROID</span><br><span class="line">jclass <span class="title function_">FindClass</span><span class="params">(const <span class="type">char</span>* name)</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> static_cast&lt;jclass&gt;(GetEnv()-&gt;CallObjectMethod(gClassLoader, gFindClassMethod, GetEnv()-&gt;NewStringUTF(name)));</span><br><span class="line">&#125;</span><br><span class="line">#endif</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="字节对齐"><a href="#字节对齐" class="headerlink" title="字节对齐"></a>字节对齐</h3><p>由于cpu的访问效率，字节对齐是音视频开发中特别常见的一个问题。不过一般遇到的字节对齐问题都是Android的，因为iOS大部分细节CVPixelBuffer都帮忙处理了。但是ffi由于不和原生平台api打交道，所以需要额外处理一下。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">CVPixelBufferRef pixelBuff = pixelData-&gt;<span class="built_in">Get</span>();</span><br><span class="line"><span class="keyword">if</span> (!pixelBuff) &#123;</span><br><span class="line">  <span class="built_in">XLOGE</span>(<span class="string">&quot;Dart_ThumbnailGenerator_getThumbnailASync pixelBuff is null&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">&#125;</span><br><span class="line">UniqueAVFramePtr frame = <span class="built_in">UniqueAVFramePtrCreate</span>(AV_PIX_FMT_RGBA, width, height);</span><br><span class="line">CVReturn err = <span class="built_in">CVPixelBufferLockBaseAddress</span>(pixelBuff, kCVPixelBufferLock_ReadOnly);</span><br><span class="line"><span class="keyword">if</span> (err != kCVReturnSuccess) &#123;</span><br><span class="line">  <span class="built_in">XLOGE</span>(<span class="string">&quot;Dart_ThumbnailGenerator_getThumbnailASync error locking pixel buffer&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">size_t</span> bytesPerRow = <span class="built_in">CVPixelBufferGetBytesPerRow</span>(pixelBuff);</span><br><span class="line"><span class="comment">// 处理16对齐情况下</span></span><br><span class="line"><span class="keyword">if</span> (bytesPerRow &gt; width*<span class="number">4</span>) &#123;</span><br><span class="line">  <span class="type">int</span> targetPerRow = width*<span class="number">4</span>;</span><br><span class="line">  <span class="type">uint8_t</span> *dstPixel = (<span class="type">uint8_t</span>*)<span class="built_in">malloc</span>(targetPerRow*height);</span><br><span class="line">  <span class="type">uint8_t</span>* srcPixel = (<span class="type">uint8_t</span>*)<span class="built_in">CVPixelBufferGetBaseAddress</span>(pixelBuff);</span><br><span class="line">  <span class="keyword">for</span> (<span class="type">int</span> line = <span class="number">0</span>; line &lt; height; line++ ) &#123;</span><br><span class="line">    <span class="built_in">memcpy</span>(dstPixel+line*targetPerRow, srcPixel+line*bytesPerRow,  targetPerRow);</span><br><span class="line">  &#125;</span><br><span class="line">  imgData = dstPixel;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  imgData = (<span class="type">uint8_t</span>*)<span class="built_in">CVPixelBufferGetBaseAddress</span>(pixelBuff);</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">CVPixelBufferUnlockBaseAddress</span>(pixelBuff, kCVPixelBufferLock_ReadOnly);</span><br><span class="line"></span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://blog.vvusu.com">vvusu</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://blog.vvusu.com/posts/f1f47b05.html">http://blog.vvusu.com/posts/f1f47b05.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener external nofollow noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B7%A5%E5%85%B7/">工具</a><a class="post-meta__tags" href="/tags/%E5%BC%80%E5%8F%91/">开发</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150125130.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> Donate</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/wechat.jpg" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/46a7e09b.html" title="C++ 基础总结"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150127126.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">C++ 基础总结</div></div></a></div><div class="next-post pull-right"><a href="/posts/e92d9672.html" title="See the world"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/202309061404498.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">See the world</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/posts/504eb65d.html" title="iPhone7Plus iOS15越狱"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309200122488.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-25</div><div class="title">iPhone7Plus iOS15越狱</div></div></a></div><div><a href="/posts/2ecdd288.html" title="Android 逆向"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309200108540.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-02</div><div class="title">Android 逆向</div></div></a></div><div><a href="/posts/46a7e09b.html" title="C++ 基础总结"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150127126.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-07-18</div><div class="title">C++ 基础总结</div></div></a></div><div><a href="/posts/dc0fcfb0.html" title="Android 如何抓取淘系的网络请求"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309120016906.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-02</div><div class="title">Android 如何抓取淘系的网络请求</div></div></a></div><div><a href="/posts/a94a2869.html" title="DSM 使用 Python 脚本整理备份的照片"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150126228.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-10-06</div><div class="title">DSM 使用 Python 脚本整理备份的照片</div></div></a></div><div><a href="/posts/a8d170e6.html" title="Git Flow工作流常用操作流程"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150125933.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-12</div><div class="title">Git Flow工作流常用操作流程</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> Comment</span></div></div><div class="comment-wrap"><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.gif" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">vvusu</div><div class="author-info__description">💰省钱小能手 | 技术资深学者 | 👨‍💻科技宅</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/vvusu"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/vvusu" rel="external nofollow noreferrer" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="mailto:wedxzl@gmail.com" rel="external nofollow noreferrer" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #000000;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96"><span class="toc-number">2.</span> <span class="toc-text">优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-number">3.</span> <span class="toc-text">问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%82%E6%AD%A5%E9%80%9A%E4%BF%A1%E9%97%AE%E9%A2%98"><span class="toc-number">3.1.</span> <span class="toc-text">异步通信问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%AD%98jni%E7%8E%AF%E5%A2%83"><span class="toc-number">3.2.</span> <span class="toc-text">缓存jni环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%97%E8%8A%82%E5%AF%B9%E9%BD%90"><span class="toc-number">3.3.</span> <span class="toc-text">字节对齐</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f" title="www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f"><img src="/img/default_cover3.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f" title="www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f">www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f</a><time datetime="2023-09-26T02:42:01.279Z" title="Created 2023-09-26 10:42:01">2023-09-26</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-697679b1144d42f08fa900f73122eeea" title="CloudFlare Zero Trust 内网穿透"><img src="/img/default_cover1.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare Zero Trust 内网穿透"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-697679b1144d42f08fa900f73122eeea" title="CloudFlare Zero Trust 内网穿透">CloudFlare Zero Trust 内网穿透</a><time datetime="2023-09-25T16:00:00.000Z" title="Created 2023-09-26 00:00:00">2023-09-26</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-3e596c97a3c3426eb82861d800e1b442" title="CloudFlare Zero Trust"><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309120023038.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare Zero Trust"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-3e596c97a3c3426eb82861d800e1b442" title="CloudFlare Zero Trust">CloudFlare Zero Trust</a><time datetime="2023-09-25T16:00:00.000Z" title="Created 2023-09-26 00:00:00">2023-09-26</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-DDNS-e0055cd81da44ae19129e708270a9d7e" title="CloudFlare DDNS"><img src="/img/default_cover3.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare DDNS"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-DDNS-e0055cd81da44ae19129e708270a9d7e" title="CloudFlare DDNS">CloudFlare DDNS</a><time datetime="2023-09-19T16:00:00.000Z" title="Created 2023-09-20 00:00:00">2023-09-20</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-WARP-6ff99060242d45f0bde459e6ab244814" title="CloudFlare WARP 内网穿透"><img src="/img/default_cover3.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare WARP 内网穿透"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-WARP-6ff99060242d45f0bde459e6ab244814" title="CloudFlare WARP 内网穿透">CloudFlare WARP 内网穿透</a><time datetime="2023-09-19T16:00:00.000Z" title="Created 2023-09-20 00:00:00">2023-09-20</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150125130.jpeg')"><div id="footer-wrap"><div class="copyright">&copy;2015 - 2023 By vvusu</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">Hi, welcome to my <a target="_blank" rel="noopener external nofollow noreferrer" href="https://butterfly.js.org/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">簡</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addModeChange('mermaid', runMermaid)
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>function loadDisqus () {
+  const disqus_config = function () {
+    this.page.url = 'http://blog.vvusu.com/posts/f1f47b05.html'
+    this.page.identifier = '/posts/f1f47b05.html'
+    this.page.title = 'Flutter 使用ffi来提高通信效率'
+  }
+
+  const disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  btf.addModeChange('disqus', disqusReset)
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://blog-vvusu-com.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+}
+
+if ('Disqus' === 'Disqus' || !true) {
+  if (true) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

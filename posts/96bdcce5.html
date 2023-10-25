@@ -1,0 +1,266 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Docker 中部署青龙面板 | VVUSU</title><meta name="author" content="vvusu"><meta name="copyright" content="vvusu"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="青龙面板是一个支持python3、javaScript、shell、typescript 的定时任务的管理面板。 项目地址： https:&#x2F;&#x2F;github.com&#x2F;whyour&#x2F;qinglong Docker 安装12345678docker run -dit \  -v &#x2F;opt&#x2F;docker&#x2F;qinglong&#x2F;data:&#x2F;ql&#x2F;data \  -p 8088:5700 \  -e TZ&#x3D;Asi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker 中部署青龙面板">
+<meta property="og:url" content="http://blog.vvusu.com/posts/96bdcce5.html">
+<meta property="og:site_name" content="VVUSU">
+<meta property="og:description" content="青龙面板是一个支持python3、javaScript、shell、typescript 的定时任务的管理面板。 项目地址： https:&#x2F;&#x2F;github.com&#x2F;whyour&#x2F;qinglong Docker 安装12345678docker run -dit \  -v &#x2F;opt&#x2F;docker&#x2F;qinglong&#x2F;data:&#x2F;ql&#x2F;data \  -p 8088:5700 \  -e TZ&#x3D;Asi">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309120019798.png">
+<meta property="article:published_time" content="2022-12-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-09-27T03:09:59.522Z">
+<meta property="article:author" content="vvusu">
+<meta property="article:tag" content="工具">
+<meta property="article:tag" content="Mac">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309120019798.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://blog.vvusu.com/posts/96bdcce5.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//static.cloudflareinsights.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="google5d6de2274e3c7e7c.html"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7021409880699000',
+  enable_page_level_ads: 'true'
+});</script><script defer="defer" data-pjax="data-pjax" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;bde1138de50c4f508070984fedad460e&quot;}"></script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found"}},
+  translate: {"defaultEncoding":1,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: true,
+    post: true
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"Author: vvusu","link":"Link: ","source":"Source: VVUSU","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source."}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Docker 中部署青龙面板',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-09-27 11:09:59'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="VVUSU" type="application/atom+xml">
+</head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.gif" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movie/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309120019798.png')"><nav id="nav"><span id="blog-info"><a href="/" title="VVUSU"><span class="site-name">VVUSU</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movie/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Docker 中部署青龙面板</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2022-12-15T16:00:00.000Z" title="Created 2022-12-16 00:00:00">2022-12-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-09-27T03:09:59.522Z" title="Updated 2023-09-27 11:09:59">2023-09-27</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Docker 中部署青龙面板"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>青龙面板是一个支持python3、javaScript、shell、typescript 的定时任务的管理面板。</p>
+<p>项目地址：</p>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/whyour/qinglong">https://github.com/whyour/qinglong</a></p>
+<h2 id="Docker-安装"><a href="#Docker-安装" class="headerlink" title="Docker 安装"></a>Docker 安装</h2><figure class="highlight docker"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="keyword">run</span><span class="language-bash"> -dit \</span></span><br><span class="line"><span class="language-bash">  -v /opt/docker/qinglong/data:/ql/data \</span></span><br><span class="line"><span class="language-bash">  -p 8088:5700 \</span></span><br><span class="line"><span class="language-bash">  -e TZ=Asia/Shanghai \</span></span><br><span class="line"><span class="language-bash">  --name qinglong \</span></span><br><span class="line"><span class="language-bash">  --hostname qinglong \</span></span><br><span class="line"><span class="language-bash">  --restart unless-stopped \</span></span><br><span class="line"><span class="language-bash">  whyour/qinglong:latest</span></span><br></pre></td></tr></table></figure>
+
+<p>安装好之后直接打开：<a target="_blank" rel="noopener external nofollow noreferrer" href="http://localhost:8088/">http://localhost:8088</a> 后进行初始化设置。</p>
+<h2 id="依赖环境设置"><a href="#依赖环境设置" class="headerlink" title="依赖环境设置"></a>依赖环境设置</h2><p>NodeJs 依赖如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">moment</span><br><span class="line">crypto-js</span><br><span class="line">prettytable</span><br><span class="line">dotenv</span><br><span class="line">jsdom</span><br><span class="line">date-fns</span><br><span class="line">tough-cookie</span><br><span class="line">tslib</span><br><span class="line">ws@7.4.3</span><br><span class="line">ts-md5</span><br><span class="line">jsdom -g</span><br><span class="line">jieba</span><br><span class="line">fs</span><br><span class="line">form-data</span><br><span class="line">json5</span><br><span class="line">global-agent</span><br><span class="line">png-js</span><br><span class="line">@types/node</span><br><span class="line">require</span><br><span class="line">typescript</span><br><span class="line">js-base64</span><br><span class="line">axios</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/202309110036537.png" alt="Untitled"></p>
+<p>Python3 依赖如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">requests</span><br><span class="line">canvas</span><br><span class="line">ping3</span><br><span class="line">jieba</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/202309110036538.png" alt="Untitled"></p>
+<h2 id="添加订阅任务"><a href="#添加订阅任务" class="headerlink" title="添加订阅任务"></a>添加订阅任务</h2><p>下图指的位置必须要填写的，一个名称，连接，后面会给出，首次填写会按照平台的命令格式自动填充一些字段，完成后需要手动删除首次填写的内容，定时规则需要自己填写自己的要求，格式为<strong>cron表达式</strong></p>
+<p><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/202309110036539.png" alt="Untitled"></p>
+<h2 id="京东脚本库汇总"><a href="#京东脚本库汇总" class="headerlink" title="京东脚本库汇总"></a><strong>京东脚本库汇总</strong></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Faker2 有助力池 250+</span></span><br><span class="line">ql repo https://github.com/shufflewzc/faker2.git <span class="string">&quot;jd_|jx_|gua_|jddj_|jdCookie&quot;</span> <span class="string">&quot;activity|backUp&quot;</span> <span class="string">&quot;^jd[^_]|USER|function|utils|sendNotify|ZooFaker_Necklace.js|JDJRValidator_|sign_graphics_validate|ql|JDSignValidator&quot;</span> <span class="string">&quot;main&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Faker3 无助力池 260+</span></span><br><span class="line">ql repo https://github.com/shufflewzc/faker3.git <span class="string">&quot;jd_|jx_|gua_|jddj_|jdCookie&quot;</span> <span class="string">&quot;activity|backUp&quot;</span> <span class="string">&quot;^jd[^_]|USER|function|utils|sendNotify|ZooFaker_Necklace.js|JDJRValidator_|sign_graphics_validate|ql|JDSignValidator&quot;</span> <span class="string">&quot;main&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># gys619/Absinthe （集合库）340+</span></span><br><span class="line">ql repo https://github.com/gys619/Absinthe.git <span class="string">&quot;jd_|jx_|jddj_|gua_|getJDCookie|wskey&quot;</span> <span class="string">&quot;activity|backUp&quot;</span> <span class="string">&quot;^jd[^_]|USER|utils|ZooFaker_Necklace|JDJRValidator_|sign_graphics_validate|jddj_cookie|function|ql|magic|JDJR|JD&quot;</span> <span class="string">&quot;main&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># KingRan/KR （集合库）130+</span></span><br><span class="line">ql repo https://github.com/KingRan/KR.git <span class="string">&quot;jd_|jx_|jdCookie&quot;</span> <span class="string">&quot;activity|backUp&quot;</span> <span class="string">&quot;^jd[^_]|USER|utils|function|sign|sendNotify|ql|JDJR&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 6dylan6/jdpro （集合库）90+</span></span><br><span class="line">ql repo https://github.com/6dylan6/jdpro.git <span class="string">&quot;jd_|jx_|jddj_&quot;</span> <span class="string">&quot;backUp&quot;</span> <span class="string">&quot;^jd[^_]|USER|JD|function|sendNotify&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 小埋yyds仓库(带助力池)  170+</span></span><br><span class="line">ql repo https://github.com/okyyds/yyds.git <span class="string">&quot;jd_|jx_|gua_|jddj_|jdCookie&quot;</span> <span class="string">&quot;activity|backUp&quot;</span> <span class="string">&quot;^jd[^_]|USER|function|utils|sendNotify|ZooFaker_Necklace.js|JDJRValidator_|sign_graphics_validate|ql|JDSignValidator&quot;</span> <span class="string">&quot;master&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 小埋yydspure仓库(不带助力池)  160+</span></span><br><span class="line">ql repo https://github.com/okyyds/yydspure.git <span class="string">&quot;jd_|jx_|gua_|jddj_|jdCookie&quot;</span> <span class="string">&quot;activity|backUp&quot;</span> <span class="string">&quot;^jd[^_]|USER|function|utils|sendNotify|ZooFaker_Necklace.js|JDJRValidator_|sign_graphics_validate|ql|JDSignValidator&quot;</span> <span class="string">&quot;master&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># zero205/JD_tencent_scf  80+</span></span><br><span class="line">ql repo https://github.com/zero205/JD_tencent_scf.git <span class="string">&quot;jd_|jx_|jdCookie&quot;</span> <span class="string">&quot;backUp|icon&quot;</span> <span class="string">&quot;^jd[^_]|USER|sendNotify|sign_graphics_validate|JDJR|JDSign|ql&quot;</span> <span class="string">&quot;main&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># chinnkarahoi 无维护 原版 70+</span></span><br><span class="line">ql repo https://github.com/chinnkarahoi/jd_scripts.git <span class="string">&quot;jd_|jx_|getJDCookie&quot;</span> <span class="string">&quot;activity|backUp|Coupon&quot;</span> <span class="string">&quot;^jd[^_]|USER&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># he1pu 110+</span></span><br><span class="line">ql repo https://github.com/he1pu/JDHelp.git <span class="string">&quot;jd_|jx_|getJDCookie&quot;</span> <span class="string">&quot;activity|backUp|jd_delCoupon&quot;</span> <span class="string">&quot;^jd[^_]|USER&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ccwav大佬的通知增强版和CK检测</span></span><br><span class="line">ql repo https://github.com/ccwav/QLScript2.git <span class="string">&quot;jd_&quot;</span> <span class="string">&quot;NoUsed&quot;</span> <span class="string">&quot;ql|sendNotify&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># smiek2121开卡</span></span><br><span class="line">ql repo https://github.com/smiek2121/scripts.git <span class="string">&quot;gua_&quot;</span> <span class="string">&quot;&quot;</span> <span class="string">&quot;ZooFaker_Necklace.js|JDJRValidator_Pure.js|sign_graphics_validate.js|cleancart_activity.js|jdCookie.js|sendNotify.js&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="常用定时规则cron表达式"><a href="#常用定时规则cron表达式" class="headerlink" title="常用定时规则cron表达式"></a><strong>常用定时规则cron表达式</strong></h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 表示在每月的1日的凌晨2点调整任务</span></span><br><span class="line">0 0 2 1 * ?</span><br><span class="line"><span class="comment"># 表示周一到周五每天上午10:15执行作业</span></span><br><span class="line">0 15 10 ? * MON-FRI</span><br><span class="line"><span class="comment"># 表示2002-2006年的每个月的最后一个星期五上午10:15执行作</span></span><br><span class="line">0 15 10 ? 6L 2002-2006</span><br><span class="line"><span class="comment"># 每天上午10点，下午2点，4点</span></span><br><span class="line">0 0 10,14,16 * * ?</span><br><span class="line"><span class="comment"># 朝九晚五工作时间内每半小时</span></span><br><span class="line">0 0/30 9-17 * * ?</span><br><span class="line"><span class="comment"># 表示每个星期三中午12点</span></span><br><span class="line">0 0 12 ? * WED</span><br><span class="line"><span class="comment"># 每天中午12点触发</span></span><br><span class="line">0 0 12 * * ?</span><br><span class="line"><span class="comment"># 每天上午10:15触发</span></span><br><span class="line">0 15 10 ? * *</span><br><span class="line"><span class="comment"># 每天上午10:15触发</span></span><br><span class="line">0 15 10 * * ?</span><br><span class="line"><span class="comment"># 2005年的每天上午10:15触发</span></span><br><span class="line">0 15 10 * * ? 2005</span><br><span class="line"><span class="comment"># 在每天下午2点到下午2:59期间的每1分钟触发</span></span><br><span class="line">0 * 14 * * ?</span><br><span class="line"><span class="comment"># 在每天下午2点到下午2:55期间的每5分钟触发</span></span><br><span class="line">0 0/5 14 * * ?</span><br><span class="line"><span class="comment"># 在每天下午2点到2:55期间和下午6点到6:55期间的每5分钟触发</span></span><br><span class="line">0 0/5 14,18 * * ?</span><br><span class="line"><span class="comment"># 在每天下午2点到下午2:05期间的每1分钟触发</span></span><br><span class="line">0 0-5 14 * * ?</span><br><span class="line"><span class="comment"># 每年三月的星期三的下午2:10和2:44触发</span></span><br><span class="line">0 10,44 14 ? 3 WED</span><br><span class="line"><span class="comment"># 周一至周五的上午10:15触发</span></span><br><span class="line">0 15 10 ? * MON-FRI</span><br><span class="line"><span class="comment"># 每月15日上午10:15触发</span></span><br><span class="line">0 15 10 15 * ?</span><br><span class="line"><span class="comment"># 每月最后一日的上午10:15触发</span></span><br><span class="line">0 15 10 L * ?</span><br><span class="line"><span class="comment"># 每月的最后一个星期五上午10:15触发</span></span><br><span class="line">0 15 10 ? * 6L</span><br><span class="line"><span class="comment"># 2002年至2005年的每月的最后一个星期五上午10:15触发</span></span><br><span class="line">0 15 10 ? * 6L 2002-2005</span><br><span class="line"><span class="comment"># 每月的第三个星期五上午10:15触发</span></span><br><span class="line">0 15 10 ? * 6<span class="comment">#3</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="京东Cookie获取"><a href="#京东Cookie获取" class="headerlink" title="京东Cookie获取"></a>京东Cookie获取</h2><p>电脑上登录，m.jd.com 网站，选择手机号与密码登录，有个比较麻烦的点就是京东的手势验证码验证成功比较麻烦，多试几次可以成功。登录成功打开开发者调试工具然后根据下图找到对应的，pt_key 值以及 pt_pin 的值 复制出来。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/202309110036540.png" alt="Untitled"></p>
+<p>拿到值后按照 <code>pt_key=xxxxxxxxxxxxxxxxxxxxxxxxxxxx;pt_pin=xxxxxxxx;</code> 这个格式拼装一下，然后把这个值填入到青龙面板中，到青龙面板中添加环境变量选项，添加变量设置（可添加多个Cookie），多个账号换行填写。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/202309110036541.png" alt="Untitled"></p>
+<h2 id="相关连接"><a href="#相关连接" class="headerlink" title="相关连接"></a>相关连接</h2><p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.juan920.com/">卷生活九二零-分享精品资源技巧</a><br><a target="_blank" rel="noopener external nofollow noreferrer" href="https://conveniencespace.com/">便利空间</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://blog.vvusu.com">vvusu</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://blog.vvusu.com/posts/96bdcce5.html">http://blog.vvusu.com/posts/96bdcce5.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener external nofollow noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B7%A5%E5%85%B7/">工具</a><a class="post-meta__tags" href="/tags/Mac/">Mac</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309120019798.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> Donate</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/wechat.jpg" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/e6b6e616.html" title="Mac Alfred 常用插件推荐"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309120008695.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Mac Alfred 常用插件推荐</div></div></a></div><div class="next-post pull-right"><a href="/posts/7cd4b555.html" title="华硕AC-88U OpenWrt系统安装"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309120008494.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">华硕AC-88U OpenWrt系统安装</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/posts/bcb5c8aa.html" title="MacOS Ventura U盘安装"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309120008869.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-09</div><div class="title">MacOS Ventura U盘安装</div></div></a></div><div><a href="/posts/a94a2869.html" title="DSM 使用 Python 脚本整理备份的照片"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150126228.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-10-06</div><div class="title">DSM 使用 Python 脚本整理备份的照片</div></div></a></div><div><a href="/posts/e6b6e616.html" title="Mac Alfred 常用插件推荐"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309120008695.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-14</div><div class="title">Mac Alfred 常用插件推荐</div></div></a></div><div><a href="/posts/c0aaf759.html" title="Mac Development Env Setup"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309200105670.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-10-05</div><div class="title">Mac Development Env Setup</div></div></a></div><div><a href="/posts/504eb65d.html" title="iPhone7Plus iOS15越狱"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309200122488.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-25</div><div class="title">iPhone7Plus iOS15越狱</div></div></a></div><div><a href="/posts/2ecdd288.html" title="Android 逆向"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309200108540.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-02</div><div class="title">Android 逆向</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> Comment</span></div></div><div class="comment-wrap"><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.gif" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">vvusu</div><div class="author-info__description">💰省钱小能手 | 技术资深学者 | 👨‍💻科技宅</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/vvusu"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/vvusu" rel="external nofollow noreferrer" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="mailto:wedxzl@gmail.com" rel="external nofollow noreferrer" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #000000;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker-%E5%AE%89%E8%A3%85"><span class="toc-number">1.</span> <span class="toc-text">Docker 安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%9D%E8%B5%96%E7%8E%AF%E5%A2%83%E8%AE%BE%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">依赖环境设置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E8%AE%A2%E9%98%85%E4%BB%BB%E5%8A%A1"><span class="toc-number">3.</span> <span class="toc-text">添加订阅任务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%AC%E4%B8%9C%E8%84%9A%E6%9C%AC%E5%BA%93%E6%B1%87%E6%80%BB"><span class="toc-number">4.</span> <span class="toc-text">京东脚本库汇总</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%AE%9A%E6%97%B6%E8%A7%84%E5%88%99cron%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">5.</span> <span class="toc-text">常用定时规则cron表达式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%AC%E4%B8%9CCookie%E8%8E%B7%E5%8F%96"><span class="toc-number">6.</span> <span class="toc-text">京东Cookie获取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E8%BF%9E%E6%8E%A5"><span class="toc-number">7.</span> <span class="toc-text">相关连接</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f" title="www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f"><img src="/img/default_cover3.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f" title="www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f">www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f</a><time datetime="2023-09-26T02:42:01.279Z" title="Created 2023-09-26 10:42:01">2023-09-26</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-697679b1144d42f08fa900f73122eeea" title="CloudFlare Zero Trust 内网穿透"><img src="/img/default_cover1.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare Zero Trust 内网穿透"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-697679b1144d42f08fa900f73122eeea" title="CloudFlare Zero Trust 内网穿透">CloudFlare Zero Trust 内网穿透</a><time datetime="2023-09-25T16:00:00.000Z" title="Created 2023-09-26 00:00:00">2023-09-26</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-3e596c97a3c3426eb82861d800e1b442" title="CloudFlare Zero Trust"><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309120023038.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare Zero Trust"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-3e596c97a3c3426eb82861d800e1b442" title="CloudFlare Zero Trust">CloudFlare Zero Trust</a><time datetime="2023-09-25T16:00:00.000Z" title="Created 2023-09-26 00:00:00">2023-09-26</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-DDNS-e0055cd81da44ae19129e708270a9d7e" title="CloudFlare DDNS"><img src="/img/default_cover3.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare DDNS"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-DDNS-e0055cd81da44ae19129e708270a9d7e" title="CloudFlare DDNS">CloudFlare DDNS</a><time datetime="2023-09-19T16:00:00.000Z" title="Created 2023-09-20 00:00:00">2023-09-20</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-WARP-6ff99060242d45f0bde459e6ab244814" title="CloudFlare WARP 内网穿透"><img src="/img/default_cover3.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare WARP 内网穿透"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-WARP-6ff99060242d45f0bde459e6ab244814" title="CloudFlare WARP 内网穿透">CloudFlare WARP 内网穿透</a><time datetime="2023-09-19T16:00:00.000Z" title="Created 2023-09-20 00:00:00">2023-09-20</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309120019798.png')"><div id="footer-wrap"><div class="copyright">&copy;2015 - 2023 By vvusu</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">Hi, welcome to my <a target="_blank" rel="noopener external nofollow noreferrer" href="https://butterfly.js.org/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">簡</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addModeChange('mermaid', runMermaid)
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>function loadDisqus () {
+  const disqus_config = function () {
+    this.page.url = 'http://blog.vvusu.com/posts/96bdcce5.html'
+    this.page.identifier = '/posts/96bdcce5.html'
+    this.page.title = 'Docker 中部署青龙面板'
+  }
+
+  const disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  btf.addModeChange('disqus', disqusReset)
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://blog-vvusu-com.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+}
+
+if ('Disqus' === 'Disqus' || !true) {
+  if (true) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Docker 搭建私有仓库 | VVUSU</title><meta name="author" content="vvusu"><meta name="copyright" content="vvusu"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="这篇文章内容包括搭建 docker 私有仓库的一些配置项和遇到的问题及解决方案。  1234567891011121.配置项1.1\\. 数据持久化1.2\\. TLS 支持1.3\\. 登录授权验证1.4\\. docker compose2\\. 测试3\\. NGINX做代理3.1\\. 我的方式和遇到的问题3.2\\. NGINX 作为一个容器4\\. 其它方案5\\. 相关链接  Do">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker 搭建私有仓库">
+<meta property="og:url" content="http://blog.vvusu.com/posts/e2f95081.html">
+<meta property="og:site_name" content="VVUSU">
+<meta property="og:description" content="这篇文章内容包括搭建 docker 私有仓库的一些配置项和遇到的问题及解决方案。  1234567891011121.配置项1.1\\. 数据持久化1.2\\. TLS 支持1.3\\. 登录授权验证1.4\\. docker compose2\\. 测试3\\. NGINX做代理3.1\\. 我的方式和遇到的问题3.2\\. NGINX 作为一个容器4\\. 其它方案5\\. 相关链接  Do">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309200057482.png">
+<meta property="article:published_time" content="2021-07-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-18T05:23:16.069Z">
+<meta property="article:author" content="vvusu">
+<meta property="article:tag" content="开发">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309200057482.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://blog.vvusu.com/posts/e2f95081.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//static.cloudflareinsights.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="google5d6de2274e3c7e7c.html"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7021409880699000',
+  enable_page_level_ads: 'true'
+});</script><script defer="defer" data-pjax="data-pjax" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;bde1138de50c4f508070984fedad460e&quot;}"></script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found"}},
+  translate: {"defaultEncoding":1,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: true,
+    post: true
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"Author: vvusu","link":"Link: ","source":"Source: VVUSU","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source."}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Docker 搭建私有仓库',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-10-18 13:23:16'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="VVUSU" type="application/atom+xml">
+</head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.gif" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movie/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309200057482.png')"><nav id="nav"><span id="blog-info"><a href="/" title="VVUSU"><span class="site-name">VVUSU</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movie/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Docker 搭建私有仓库</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2021-07-11T16:00:00.000Z" title="Created 2021-07-12 00:00:00">2021-07-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-10-18T05:23:16.069Z" title="Updated 2023-10-18 13:23:16">2023-10-18</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Docker 搭建私有仓库"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><blockquote>
+<p>这篇文章内容包括搭建 docker 私有仓库的一些配置项和遇到的问题及解决方案。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">1.配置项</span><br><span class="line">1.1\\. 数据持久化</span><br><span class="line">1.2\\. TLS 支持</span><br><span class="line">1.3\\. 登录授权验证</span><br><span class="line">1.4\\. docker compose</span><br><span class="line">2\\. 测试</span><br><span class="line">3\\. NGINX做代理</span><br><span class="line">3.1\\. 我的方式和遇到的问题</span><br><span class="line">3.2\\. NGINX 作为一个容器</span><br><span class="line">4\\. 其它方案</span><br><span class="line">5\\. 相关链接</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Docker 官方提供了 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://hub.docker.com/_/registry/">registry 镜像</a>， 可以方便的搭建私有仓库，详细文档参考<a target="_blank" rel="noopener external nofollow noreferrer" href="https://docs.docker.com/registry/deploying/#load-balancing-considerations">这里</a>。</p>
+<h1 id="配置项"><a href="#配置项" class="headerlink" title="配置项"></a>配置项</h1><h2 id="数据持久化"><a href="#数据持久化" class="headerlink" title="数据持久化"></a>数据持久化</h2><p>可以通过采用数据卷挂载或者直接挂载宿主机目录的方式来进行。挂载到容器内默认位置: <code>/var/lib/registry</code> 。<br>比如可以像如下方式启动, 这里将容器数据存储在了 <code>/mnt/registry</code>.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d \\</span><br><span class="line">  -p 5000:5000 \\</span><br><span class="line">  --restart=always \\</span><br><span class="line">  --name registry \\</span><br><span class="line">  -v /mnt/registry:/var/lib/registry \\</span><br><span class="line">  registry:2</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>当然，镜像还提供了其它支持的存储方式，比如 OSS 等。</p>
+<p>官方文档参见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://docs.docker.com/registry/deploying/#storage-customization">这里</a>。</p>
+<h2 id="TLS-支持"><a href="#TLS-支持" class="headerlink" title="TLS 支持"></a>TLS 支持</h2><p>为了使得私有仓库安全地对外开放，需要配置 TLS 支持。</p>
+<p>测试的时候，如果不配置的话 TLS，可以在 docker 客户端中的 “insecure registry” 里添加私有仓库地址，不然默认的都以安全的 tsl 方式来访问私有仓库，具体更改方式可以参考<a target="_blank" rel="noopener external nofollow noreferrer" href="https://docs.docker.com/registry/insecure/#deploy-a-plain-http-registry">这里</a>。</p>
+<p>我的 CA 证书是从阿里云获取的（因为域名是在上面注册的，可以提供免费的证书，虽然如果做得很隐蔽）。</p>
+<p>registry 镜像可以通过 <code>REGISTRY_HTTP_TLS_CERTIFICATE</code> 和 <code>REGISTRY_HTTP_TLS_KEY</code> 环境参数配置 TLS 支持。<br>例如下面这样， <code>domain.crt</code> 和 <code>domain.key</code> 是获得的证书，另外配置容器监听 ssl 默认的 <code>443</code> 端口。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d \\</span><br><span class="line">  --restart=always \\</span><br><span class="line">  --name registry \\</span><br><span class="line">  -v `pwd`/certs:/certs \\</span><br><span class="line">  -e REGISTRY_HTTP_ADDR=0.0.0.0:443 \\</span><br><span class="line">  -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \\</span><br><span class="line">  -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key \\</span><br><span class="line">  -p 443:443 \\</span><br><span class="line">  registry:2</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>官方文档参见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://docs.docker.com/registry/deploying/#run-an-externally-accessible-registry">这里</a>。</p>
+<h2 id="登录授权验证"><a href="#登录授权验证" class="headerlink" title="登录授权验证"></a>登录授权验证</h2><p>可以通过 <code>htpasswd</code> 来配置简单的 authentication （注意：验证需要 TLS 支持）。</p>
+<p>首先在 <code>auth</code> 目录下通过 reistry 里的 <code>htpasswd</code> 工具创建 验证文件 <code>auth/htpasswd</code> 。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir auth</span><br><span class="line">$ docker run \\</span><br><span class="line">  --entrypoint htpasswd \\</span><br><span class="line">  registry:2 -Bbn testuser testpassword &gt; auth/htpasswd</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>启动的时候通过 <code>REGISTRY_AUTH</code>, <code>REGISTRY_AUTH_HTPASSWD_REALM</code>, <code>REGISTRY_AUTH_HTPASSWD_PATH</code> 来配置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ docker run -d \\</span><br><span class="line">  -p 5000:5000 \\</span><br><span class="line">  --restart=always \\</span><br><span class="line">  --name registry \\</span><br><span class="line">  -v `pwd`/auth:/auth \\</span><br><span class="line">  -e &quot;REGISTRY_AUTH=htpasswd&quot; \\</span><br><span class="line">  -e &quot;REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm&quot; \\</span><br><span class="line">  -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \\</span><br><span class="line">  -v `pwd`/certs:/certs \\</span><br><span class="line">  -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \\</span><br><span class="line">  -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key \\</span><br><span class="line">  registry:2</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这样就启动了一个监听 5000 端口的、支持 TLS 和简单登录验证的 docker 私有仓库。</p>
+<p>官方文档参见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://docs.docker.com/registry/deploying/#restricting-access">这里</a>。</p>
+<h2 id="docker-compose"><a href="#docker-compose" class="headerlink" title="docker compose"></a>docker compose</h2><p>“docker compose” 是一个方便定义和运行多个容器的工具， 安装参见<a target="_blank" rel="noopener external nofollow noreferrer" href="https://docs.docker.com/compose/install/">这里</a>， 或者通过 pip 安装： <code>pip install docker-compose</code></p>
+<p>以上配置项通过 <code>docker compose</code> 的方式组织起来如下:</p>
+<p>文件命名成 docker-compose.yaml</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">registry:</span><br><span class="line">  restart: always</span><br><span class="line">  image: registry:2</span><br><span class="line">  ports:</span><br><span class="line">    - 5000:5000</span><br><span class="line">  environment:</span><br><span class="line">    REGISTRY_HTTP_TLS_CERTIFICATE: /certs/domain.crt</span><br><span class="line">    REGISTRY_HTTP_TLS_KEY: /certs/domain.key</span><br><span class="line">    REGISTRY_AUTH: htpasswd</span><br><span class="line">    REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd</span><br><span class="line">    REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm</span><br><span class="line">  volumes:</span><br><span class="line">    - /path/data:/var/lib/registry</span><br><span class="line">    - /path/certs:/certs</span><br><span class="line">    - /path/auth:/auth</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在 <code>docker-compose.yaml</code> 所在目录运行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker-compose up</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>私有仓库搭建好了如何测试？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># 先拉取官方镜像</span><br><span class="line">$ docker pull ubuntu:16.04</span><br><span class="line"></span><br><span class="line"># 打上标签</span><br><span class="line">$ docker tag ubuntu:16.04 myregistrydomain.com/my-ubuntu</span><br><span class="line"></span><br><span class="line"># 推到私有仓库</span><br><span class="line">$ docker push myregistrydomain.com/my-ubuntu</span><br><span class="line"></span><br><span class="line"># 从私有仓库获取</span><br><span class="line">$ docker pull myregistrydomain.com/my-ubuntu</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="Nginx-做代理"><a href="#Nginx-做代理" class="headerlink" title="Nginx 做代理"></a>Nginx 做代理</h1><h2 id="我的方式和遇到的问题"><a href="#我的方式和遇到的问题" class="headerlink" title="我的方式和遇到的问题"></a>我的方式和遇到的问题</h2><p>实际配置中，我采用了 <code>nginx</code> 作为代理，来访问 registry 服务。我将 TLS 支持和登录验证都加到了 nginx 一层。</p>
+<p>nginx 配置文件:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">upstream docker-registry &#123;</span><br><span class="line">  server localhost:5000;                          # ！转发到registry 监听的5000 端口！</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">## Set a variable to help us decide if we need to add the</span><br><span class="line">## &#x27;Docker-Distribution-Api-Version&#x27; header.</span><br><span class="line">## The registry always sets this header.</span><br><span class="line">## In the case of nginx performing auth, the header is unset</span><br><span class="line">## since nginx is auth-ing before proxying.</span><br><span class="line">map $upstream_http_docker_distribution_api_version $docker_distribution_api_version &#123;</span><br><span class="line">  &#x27;&#x27; &#x27;registry/2.0&#x27;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">  listen 443 ssl;</span><br><span class="line">  server_name domain.com;  # ！这里配置域名！</span><br><span class="line"></span><br><span class="line">  # SSL</span><br><span class="line">  ssl_certificate /path/to/domain.pem;               # ！这里配置CA 证书信息！</span><br><span class="line">  ssl_certificate_key /path/to/domain.key;           # ！这里配置CA 证书信息！</span><br><span class="line"></span><br><span class="line">  # Recommendations from &lt;https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html&gt;</span><br><span class="line">  ssl_protocols TLSv1.1 TLSv1.2;</span><br><span class="line">  ssl_ciphers &#x27;EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH&#x27;;</span><br><span class="line">  ssl_prefer_server_ciphers on;</span><br><span class="line">  ssl_session_cache shared:SSL:10m;</span><br><span class="line"></span><br><span class="line">  # disable any limits to avoid HTTP 413 for large image uploads</span><br><span class="line">  client_max_body_size 0;</span><br><span class="line"></span><br><span class="line">  # required to avoid HTTP 411: see Issue #1486 (&lt;https://github.com/moby/moby/issues/1486&gt;)</span><br><span class="line">  chunked_transfer_encoding on;</span><br><span class="line"></span><br><span class="line">  location /v2/ &#123;</span><br><span class="line">    # Do not allow connections from docker 1.5 and earlier</span><br><span class="line">    # docker pre-1.6.0 did not properly set the user agent on ping, catch &quot;Go *&quot; user agents</span><br><span class="line">    if ($http_user_agent ~ &quot;^(docker\\/1\\.(3|4|5(?!\\.[0-9]-dev))|Go ).*$&quot; ) &#123;</span><br><span class="line">      return 404;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # To add basic authentication to v2 use auth_basic setting.</span><br><span class="line">    auth_basic &quot;Registry realm&quot;;</span><br><span class="line">    auth_basic_user_file /path/to/auth/htpasswd;          # ！这里配置auth文件位置！</span><br><span class="line"></span><br><span class="line">    ## If $docker_distribution_api_version is empty, the header is not added.</span><br><span class="line">    ## See the map directive above where this variable is defined.</span><br><span class="line">    add_header &#x27;Docker-Distribution-Api-Version&#x27; $docker_distribution_api_version always;</span><br><span class="line"></span><br><span class="line">    proxy_pass                          &lt;http://docker-registry&gt;;</span><br><span class="line">    proxy_set_header  Host              $http_host;   # required for docker client&#x27;s sake</span><br><span class="line">    proxy_set_header  X-Real-IP         $remote_addr; # pass on real client&#x27;s IP</span><br><span class="line">    proxy_set_header  X-Forwarded-For   $proxy_add_x_forwarded_for;</span><br><span class="line">    proxy_set_header  X-Forwarded-Proto $scheme;</span><br><span class="line">    proxy_read_timeout                  900;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>/path/to/auth/htpasswd</code> 文件是通过 registry 中的或者本地的 <code>htpasswd</code> 工具生成的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ docker run \\</span><br><span class="line">  --entrypoint htpasswd \\</span><br><span class="line">  registry:2 -Bbn testuser testpassword &gt; auth/htpasswd</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>registry 的 <code>docker-compose</code> 文件:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">version: &#x27;2&#x27;</span><br><span class="line">services:</span><br><span class="line">  my_registry:</span><br><span class="line">    restart: always</span><br><span class="line">    image: registry:2</span><br><span class="line">    ports:</span><br><span class="line">      - 127.0.0.1:5000:5000</span><br><span class="line">    volumes:</span><br><span class="line">      - ./data:/var/lib/registry</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>启动后，当我从本地视图 login 到私有仓库时，发生错误：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ docker login domain.com</span><br><span class="line">Username: testuser</span><br><span class="line">Password:</span><br><span class="line">Error response from daemon: login attempt to &lt;https://hub.docker.equiz.cn/v2/&gt; failed with status: 500 Internal Server Error</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>查看日志发现 nginx 错误日志里有个编码相关的错误：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># nginx error log</span><br><span class="line"></span><br><span class="line">*4 crypt_r() failed (22: Invalid argument)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>经过一番研究，发现之前加密时，是采用 <code>Bcrypt</code> 加密方式，看下 <code>htpasswd</code> 的使用说明：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">root@data1:~# htpasswd</span><br><span class="line">Usage:</span><br><span class="line">        htpasswd [-cimBdpsDv] [-C cost] passwordfile username</span><br><span class="line">        htpasswd -b[cmBdpsDv] [-C cost] passwordfile username password</span><br><span class="line"></span><br><span class="line">        htpasswd -n[imBdps] [-C cost] username</span><br><span class="line">        htpasswd -nb[mBdps] [-C cost] username password</span><br><span class="line"> -c  Create a new file.</span><br><span class="line"> -n  Don&#x27;t update file; display results on stdout.</span><br><span class="line"> -b  Use the password from the command line rather than prompting for it.</span><br><span class="line"> -i  Read password from stdin without verification (for script usage).</span><br><span class="line"> -m  Force MD5 encryption of the password (default).</span><br><span class="line"> -B  Force bcrypt encryption of the password (very secure).</span><br><span class="line"> -C  Set the computing time used for the bcrypt algorithm</span><br><span class="line">     (higher is more secure but slower, default: 5, valid: 4 to 31).</span><br><span class="line"> -d  Force CRYPT encryption of the password (8 chars max, insecure).</span><br><span class="line"> -s  Force SHA encryption of the password (insecure).</span><br><span class="line"> -p  Do not encrypt the password (plaintext, insecure).</span><br><span class="line"> -D  Delete the specified user.</span><br><span class="line"> -v  Verify password for the specified user.</span><br><span class="line">On other systems than Windows and NetWare the &#x27;-p&#x27; flag will probably not work.</span><br><span class="line">The SHA algorithm does not use a salt and is less secure than the MD5 algorithm.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可以看到 <code>-B</code> 会使用 <code>bcrypt</code> 的方式来加密，nginx 默认不支持。至于如何让 nginx 支持 bcrypt 我暂时还未找到方案，留待以后研究了 (TODO)</p>
+<p>简单的解决方式是换成默认的 MD5 加密（因为安全等级问题又不推荐不用 bcrypt 方式的），</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run --rm --entrypoint htpasswd registry:2 -bn testuser testpassword &gt; auth/htpasswd   # 这里少了 -B 选项</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>关于 <code>bcrypt</code> 加密方式，<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.endpoint.com/blog/2016/02/09/bonked-by-basicauth-because-bcrypt">这里</a> 有一篇不错的文章介绍。不过好像对于这个加密方式，网上有一些争论，我就不详究了。</p>
+<p>不依赖 “apche tools” 的 nginx 加密方式参考 <a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.nginx.com/resources/wiki/community/faq/#how-do-i-generate-an-htpasswd-file-without-having-apache-tools-installed">这里</a>, 比如 MD5 加密:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">printf &quot;testuser:$(openssl passwd -1 testpassword)\\n&quot; &gt;&gt; .htpasswd # this example uses MD5 encryption</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="Nginx-作为一个容器"><a href="#Nginx-作为一个容器" class="headerlink" title="Nginx 作为一个容器"></a>Nginx 作为一个容器</h2><p>docker 文档也有如何采用 nginx 容器和 registry 配合使用的说明，参考<a target="_blank" rel="noopener external nofollow noreferrer" href="https://docs.docker.com/registry/recipes/nginx/">这里</a>。</p>
+<p>“docker-compose.yaml” 如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">nginx:</span><br><span class="line">  # Note : Only nginx:alpine supports bcrypt.</span><br><span class="line">  # If you don&#x27;t need to use bcrypt, you can use a different tag.</span><br><span class="line">  # Ref. &lt;https://github.com/nginxinc/docker-nginx/issues/29&gt;</span><br><span class="line">  image: &quot;nginx:alpine&quot;     # ！这里一定要采用alpine镜像，因为它里的nginx支持 bcrypt 加密！</span><br><span class="line">  ports:</span><br><span class="line">    - 5043:443</span><br><span class="line">  links:</span><br><span class="line">    - registry:registry</span><br><span class="line">  volumes:</span><br><span class="line">    - ./auth:/etc/nginx/conf.d</span><br><span class="line">    - ./auth/nginx.conf:/etc/nginx/nginx.conf:ro</span><br><span class="line"></span><br><span class="line">registry:</span><br><span class="line">  image: registry:2</span><br><span class="line">  ports:</span><br><span class="line">    - 127.0.0.1:5000:5000</span><br><span class="line">  volumes:</span><br><span class="line">    - ./data:/var/lib/registry</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里 nginx 容器监听的是 5043, 所以使用的私有仓库的地址变成了 <code>registrydomain.com:5043</code>,<br>我不喜欢后面加端口，但本机又存在其他需要 nginx 监听的 443 端口的服务 (不同 doamin 下)，所以不能让 nginx 容器直接监听 443 端口，故没有采用这种方式。</p>
+<p>另外在寻找解决方案的时候发现一个镜像 <code>nginx-proxy</code>, 可以方便地监听新添加的容器，留待以后探索。</p>
+<h1 id="其它方案"><a href="#其它方案" class="headerlink" title="其它方案"></a>其它方案</h1><p>或许你想用 letsencrypts 免费证书，不妨看看这个工具:<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/Neilpang/acme.sh">acme.sh</a></p>
+<p>或许你不满足的简易方案，你可能还需要 web 界面来方便查看和管理你的镜像仓库，那么你可以查看下企业级的容器仓库方案: <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/vmware/harbor">vmware&#x2F;harbor</a></p>
+<h1 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h1><ul>
+<li>docker ce ubuntu 安装 文档: <a target="_blank" rel="noopener external nofollow noreferrer" href="https://docs.docker.com/insta">https://docs.docker.com/insta</a>…</li>
+<li>docker compose 安装文档: <a target="_blank" rel="noopener external nofollow noreferrer" href="https://docs.docker.com/compo">https://docs.docker.com/compo</a>…</li>
+<li>docker registr 镜像: <a target="_blank" rel="noopener external nofollow noreferrer" href="https://hub.docker.com/_/regi">https://hub.docker.com/_&#x2F;regi</a>…</li>
+<li>deploy 部署步骤文档: <a target="_blank" rel="noopener external nofollow noreferrer" href="https://docs.docker.com/regis">https://docs.docker.com/regis</a>…</li>
+<li>详细的 registry 的可配置项参见: <a target="_blank" rel="noopener external nofollow noreferrer" href="https://docs.docker.com/regis">https://docs.docker.com/regis</a>…</li>
+<li>nginx 容器 bcrypt 问题: <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/docker/dis">https://github.com/docker/dis</a>…</li>
+<li>nginx 容器 bcrypt 问题 2: <a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/nginxinc/d">https://github.com/nginxinc/d</a>…</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://blog.vvusu.com">vvusu</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://blog.vvusu.com/posts/e2f95081.html">http://blog.vvusu.com/posts/e2f95081.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener external nofollow noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%BC%80%E5%8F%91/">开发</a><a class="post-meta__tags" href="/tags/Linux/">Linux</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309200057482.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> Donate</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/wechat.jpg" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/6a820bd7.html" title="Postgresql 常用操作"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309141915038.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Postgresql 常用操作</div></div></a></div><div class="next-post pull-right"><a href="/posts/d1cb8a63.html" title="Docker 中部署GitLab"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309200058158.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Docker 中部署GitLab</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/posts/357d486b.html" title="CentOS7 安装和配置"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150126599.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-12</div><div class="title">CentOS7 安装和配置</div></div></a></div><div><a href="/posts/15245467.html" title="CentOS8 基础配置"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150127451.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-12</div><div class="title">CentOS8 基础配置</div></div></a></div><div><a href="/posts/90cb36a6.html" title="CentOS8 部署 Kubernetes"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150127850.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-12</div><div class="title">CentOS8 部署 Kubernetes</div></div></a></div><div><a href="/posts/84630c6e.html" title="Golang 编译到 beego 多平台打包"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150126576.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-12</div><div class="title">Golang 编译到 beego 多平台打包</div></div></a></div><div><a href="/posts/d1cb8a63.html" title="Docker 中部署GitLab"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309200058158.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-12</div><div class="title">Docker 中部署GitLab</div></div></a></div><div><a href="/posts/6a820bd7.html" title="Postgresql 常用操作"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309141915038.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-12</div><div class="title">Postgresql 常用操作</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> Comment</span></div></div><div class="comment-wrap"><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.gif" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">vvusu</div><div class="author-info__description">💰省钱小能手 | 技术资深学者 | 👨‍💻科技宅</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/vvusu"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/vvusu" rel="external nofollow noreferrer" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="mailto:wedxzl@gmail.com" rel="external nofollow noreferrer" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #000000;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E9%A1%B9"><span class="toc-number">1.</span> <span class="toc-text">配置项</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%8C%81%E4%B9%85%E5%8C%96"><span class="toc-number">1.1.</span> <span class="toc-text">数据持久化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TLS-%E6%94%AF%E6%8C%81"><span class="toc-number">1.2.</span> <span class="toc-text">TLS 支持</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%99%BB%E5%BD%95%E6%8E%88%E6%9D%83%E9%AA%8C%E8%AF%81"><span class="toc-number">1.3.</span> <span class="toc-text">登录授权验证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker-compose"><span class="toc-number">1.4.</span> <span class="toc-text">docker compose</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95"><span class="toc-number">2.</span> <span class="toc-text">测试</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Nginx-%E5%81%9A%E4%BB%A3%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">Nginx 做代理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%88%91%E7%9A%84%E6%96%B9%E5%BC%8F%E5%92%8C%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">3.1.</span> <span class="toc-text">我的方式和遇到的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx-%E4%BD%9C%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%AE%B9%E5%99%A8"><span class="toc-number">3.2.</span> <span class="toc-text">Nginx 作为一个容器</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B6%E5%AE%83%E6%96%B9%E6%A1%88"><span class="toc-number">4.</span> <span class="toc-text">其它方案</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E9%93%BE%E6%8E%A5"><span class="toc-number">5.</span> <span class="toc-text">相关链接</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f" title="www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f"><img src="/img/default_cover3.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f" title="www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f">www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f</a><time datetime="2023-09-26T02:42:01.279Z" title="Created 2023-09-26 10:42:01">2023-09-26</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-697679b1144d42f08fa900f73122eeea" title="CloudFlare Zero Trust 内网穿透"><img src="/img/default_cover1.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare Zero Trust 内网穿透"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-697679b1144d42f08fa900f73122eeea" title="CloudFlare Zero Trust 内网穿透">CloudFlare Zero Trust 内网穿透</a><time datetime="2023-09-25T16:00:00.000Z" title="Created 2023-09-26 00:00:00">2023-09-26</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-3e596c97a3c3426eb82861d800e1b442" title="CloudFlare Zero Trust"><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309120023038.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare Zero Trust"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-3e596c97a3c3426eb82861d800e1b442" title="CloudFlare Zero Trust">CloudFlare Zero Trust</a><time datetime="2023-09-25T16:00:00.000Z" title="Created 2023-09-26 00:00:00">2023-09-26</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-DDNS-e0055cd81da44ae19129e708270a9d7e" title="CloudFlare DDNS"><img src="/img/default_cover3.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare DDNS"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-DDNS-e0055cd81da44ae19129e708270a9d7e" title="CloudFlare DDNS">CloudFlare DDNS</a><time datetime="2023-09-19T16:00:00.000Z" title="Created 2023-09-20 00:00:00">2023-09-20</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-WARP-6ff99060242d45f0bde459e6ab244814" title="CloudFlare WARP 内网穿透"><img src="/img/default_cover3.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare WARP 内网穿透"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-WARP-6ff99060242d45f0bde459e6ab244814" title="CloudFlare WARP 内网穿透">CloudFlare WARP 内网穿透</a><time datetime="2023-09-19T16:00:00.000Z" title="Created 2023-09-20 00:00:00">2023-09-20</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309200057482.png')"><div id="footer-wrap"><div class="copyright">&copy;2015 - 2023 By vvusu</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">Hi, welcome to my <a target="_blank" rel="noopener external nofollow noreferrer" href="https://butterfly.js.org/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">簡</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addModeChange('mermaid', runMermaid)
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>function loadDisqus () {
+  const disqus_config = function () {
+    this.page.url = 'http://blog.vvusu.com/posts/e2f95081.html'
+    this.page.identifier = '/posts/e2f95081.html'
+    this.page.title = 'Docker 搭建私有仓库'
+  }
+
+  const disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  btf.addModeChange('disqus', disqusReset)
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://blog-vvusu-com.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+}
+
+if ('Disqus' === 'Disqus' || !true) {
+  if (true) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

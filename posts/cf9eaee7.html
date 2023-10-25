@@ -1,0 +1,273 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>PVE DDNS外网访问家中服务 | VVUSU</title><meta name="author" content="vvusu"><meta name="copyright" content="vvusu"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="本篇记录一下在 PVE 虚拟机下执行自己编写的脚本来实现DDNS外网访问功能 首先需要自行购买域名，有许多的域名提供商，个人比较推荐国外的域名提供商,下面列了几个比较常见的域名提供商。 Godaddy Google Domains NameCheap NameSilo 因为我目前使用的是Godaddy 域名提供商，以下教程是对应的解决方法和教程， 当我们购买了域名，首先要做的是需要创建一个 API">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PVE DDNS外网访问家中服务">
+<meta property="og:url" content="http://blog.vvusu.com/posts/cf9eaee7.html">
+<meta property="og:site_name" content="VVUSU">
+<meta property="og:description" content="本篇记录一下在 PVE 虚拟机下执行自己编写的脚本来实现DDNS外网访问功能 首先需要自行购买域名，有许多的域名提供商，个人比较推荐国外的域名提供商,下面列了几个比较常见的域名提供商。 Godaddy Google Domains NameCheap NameSilo 因为我目前使用的是Godaddy 域名提供商，以下教程是对应的解决方法和教程， 当我们购买了域名，首先要做的是需要创建一个 API">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309141907315.png">
+<meta property="article:published_time" content="2022-07-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-10-24T11:59:41.537Z">
+<meta property="article:author" content="vvusu">
+<meta property="article:tag" content="Proxmox">
+<meta property="article:tag" content="软路由">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309141907315.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://blog.vvusu.com/posts/cf9eaee7.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//static.cloudflareinsights.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="google-site-verification" content="google5d6de2274e3c7e7c.html"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7021409880699000',
+  enable_page_level_ads: 'true'
+});</script><script defer="defer" data-pjax="data-pjax" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon="{&quot;token&quot;: &quot;bde1138de50c4f508070984fedad460e&quot;}"></script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found"}},
+  translate: {"defaultEncoding":1,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: true,
+    post: true
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"Author: vvusu","link":"Link: ","source":"Source: VVUSU","info":"Copyright is owned by the author. For commercial reprints, please contact the author for authorization. For non-commercial reprints, please indicate the source."}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'PVE DDNS外网访问家中服务',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2023-10-24 19:59:41'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="VVUSU" type="application/atom+xml">
+</head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.gif" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movie/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309141907315.png')"><nav id="nav"><span id="blog-info"><a href="/" title="VVUSU"><span class="site-name">VVUSU</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movie/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);" rel="external nofollow noreferrer"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">PVE DDNS外网访问家中服务</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2022-07-11T16:00:00.000Z" title="Created 2022-07-12 00:00:00">2022-07-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-10-24T11:59:41.537Z" title="Updated 2023-10-24 19:59:41">2023-10-24</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="PVE DDNS外网访问家中服务"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>本篇记录一下在 PVE 虚拟机下执行自己编写的脚本来实现DDNS外网访问功能</p>
+<p>首先需要自行购买域名，有许多的域名提供商，个人比较推荐国外的域名提供商,下面列了几个比较常见的域名提供商。</p>
+<p><strong><strong><a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.godaddy.com/">Godaddy</a></strong></strong></p>
+<p><strong><strong><a target="_blank" rel="noopener external nofollow noreferrer" href="https://domains.google/">Google Domains</a></strong></strong></p>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.namecheap.com/">NameCheap</a></p>
+<p><strong><strong><a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.namesilo.com/">NameSilo</a></strong></strong></p>
+<p>因为我目前使用的是Godaddy 域名提供商，以下教程是对应的解决方法和教程，</p>
+<p>当我们购买了域名，首先要做的是需要创建一个 API Key， 通过这个网址进行注册，<a target="_blank" rel="noopener external nofollow noreferrer" href="https://developer.godaddy.com/keys">https://developer.godaddy.com/keys</a></p>
+<p><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/202309110042590.png" alt="Untitled"></p>
+<p>点击创建API Key ,  输入一个名字，以及Environment 需要选择 Production，点击Next</p>
+<p><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/202309110042591.png" alt="Untitled"></p>
+<p>生成成功，记录一下你自己的 Key 以及 Secret 信息</p>
+<p><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/202309110042592.png" alt="Untitled"></p>
+<p>然后在我的产品里面创建一条 DNS A记录</p>
+<p><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/202309110042593.png" alt="Untitled"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/202309110042594.png" alt="Untitled"></p>
+<p>域名操作的部分已经完成，下面就开始在PVE虚拟机下进行操作，或者其他Linux系统都行</p>
+<p>下面是一个需要自动执行的一个检测和更新DNS的一个脚本，需要替换的值，就是上面创建的Key ，Secret，A记录名字以及根域名。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># This script is used to check and update your GoDaddy DNS server to the IP address of your current internet connection.</span></span><br><span class="line"><span class="comment"># Special thanks to mfox for his ps script</span></span><br><span class="line"><span class="comment"># https://github.com/markafox/GoDaddy_Powershell_DDNS</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># First go to GoDaddy developer site to create a developer account and get your key and secret</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># https://developer.godaddy.com/getstarted</span></span><br><span class="line"><span class="comment"># Be aware that there are 2 types of key and secret - one for the test server and one for the production server</span></span><br><span class="line"><span class="comment"># Get a key and secret for the production server</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#Update the first 4 variables with your information</span></span><br><span class="line"></span><br><span class="line">domain=<span class="string">&quot;xxx.com&quot;</span>                           <span class="comment"># 你的根域名</span></span><br><span class="line">name=<span class="string">&quot;xxxx&quot;</span>                                <span class="comment"># 域名 A 记录</span></span><br><span class="line">key=<span class="string">&quot;xxxxxxxxxxxxxxxxxxxxxxxxxx&quot;</span>           <span class="comment"># API-Key</span></span><br><span class="line">secret=<span class="string">&quot;xxxxxxxxxxxxxxxxxxxxxxx&quot;</span>           <span class="comment"># API-Secret</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Main</span></span><br><span class="line">headers=<span class="string">&quot;Authorization: sso-key <span class="variable">$key</span>:<span class="variable">$secret</span>&quot;</span></span><br><span class="line">result=$(curl -s -X GET -H <span class="string">&quot;<span class="variable">$headers</span>&quot;</span> \</span><br><span class="line">	<span class="string">&quot;https://api.godaddy.com/v1/domains/<span class="variable">$domain</span>/records/A/<span class="variable">$name</span>&quot;</span>)</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;result:&quot;</span> <span class="variable">$result</span></span><br><span class="line"><span class="comment"># 当前DSN IP</span></span><br><span class="line">dnsIp=$(<span class="built_in">echo</span> <span class="variable">$result</span> | grep -oE <span class="string">&quot;\b([0-9]&#123;1,3&#125;\.)&#123;3&#125;[0-9]&#123;1,3&#125;\b&quot;</span>)</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;dnsIp:&quot;</span> <span class="variable">$dnsIp</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 国内IP查询服务</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># https://api.ipify.org</span></span><br><span class="line">currentIp=$(curl -s https://api.ipify.org)</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;https://api.ipify.org currentIp:&quot;</span> <span class="variable">$currentIp</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># https://ipinfo.io/json</span></span><br><span class="line"><span class="keyword">if</span> [ ! -n <span class="string">&quot;<span class="variable">$currentIp</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">	ret=$(curl -s GET <span class="string">&quot;https://ipinfo.io/json&quot;</span>)</span><br><span class="line">	ret=$(<span class="built_in">echo</span> <span class="variable">$ret</span> | grep -oE <span class="string">&quot;\&quot;\b([0-9]&#123;1,3&#125;\.)&#123;3&#125;[0-9]&#123;1,3&#125;\b\&quot;&quot;</span>)</span><br><span class="line">	currentIp=$(<span class="built_in">echo</span> <span class="variable">$ret</span> | grep -oE <span class="string">&quot;\b([0-9]&#123;1,3&#125;\.)&#123;3&#125;[0-9]&#123;1,3&#125;\b&quot;</span>)</span><br><span class="line">	<span class="built_in">echo</span> <span class="string">&quot;https://ipinfo.io/json currentIp:&quot;</span> <span class="variable">$currentIp</span></span><br><span class="line"></span><br><span class="line">	<span class="comment"># http://ip.42.pl/raw</span></span><br><span class="line">	<span class="keyword">if</span> [ ! -n <span class="string">&quot;<span class="variable">$currentIp</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">		currentIp=$(curl -s GET <span class="string">&quot;http://ip.42.pl/raw&quot;</span>)</span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;http://ip.42.pl/raw currentIp:&quot;</span> <span class="variable">$currentIp</span></span><br><span class="line">	<span class="keyword">fi</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果不一致进行更新</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$dnsIp</span>&quot;</span> != <span class="string">&quot;<span class="variable">$currentIp</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">	request=<span class="string">&#x27;[&#123;&quot;data&quot;:&quot;&#x27;</span><span class="variable">$currentIp</span><span class="string">&#x27;&quot;,&quot;service&quot;:&quot;&#x27;</span><span class="variable">$domain</span><span class="string">&#x27;&quot;,&quot;ttl&quot;:600&#125;]&#x27;</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$request</span></span><br><span class="line">	nresult=$(curl -i -s -X PUT \</span><br><span class="line">		-H <span class="string">&quot;<span class="variable">$headers</span>&quot;</span> \</span><br><span class="line">		-H <span class="string">&quot;Content-Type: application/json&quot;</span> \</span><br><span class="line">		-d <span class="variable">$request</span> <span class="string">&quot;https://api.godaddy.com/v1/domains/<span class="variable">$domain</span>/records/A/<span class="variable">$name</span>&quot;</span>)</span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$nresult</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+
+<p>复制这段脚本并修改相应的值保存到 PVE 虚拟机下的  <strong>&#x2F;opt&#x2F;shell&#x2F;</strong> 目录下(没有就创建文件夹) 脚本重命名为 <em>godaddy-dns.sh</em></p>
+<p>完成后需要修改 PVE下的自动执行相关逻辑设置，如下命令是编写系统自动周期性执行的相关逻辑</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看当前用户定时任务</span></span><br><span class="line">crontab -l </span><br><span class="line"><span class="comment"># 编辑任务</span></span><br><span class="line">crontab -e </span><br></pre></td></tr></table></figure>
+
+<p>编辑任务填写如下代码，意思是每5分钟就执行一次上面的脚本进行检测，使用方法可参见：**<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.runoob.com/linux/linux-comm-crontab.html">Linux crontab 命令</a>** </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 每5分钟检查DNS解析是否正确</span></span><br><span class="line">*/5 * * * * /opt/shell/godaddy-dns.sh</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如果没有执行权限，添加一下权限</span></span><br><span class="line"><span class="built_in">chmod</span> +x godaddy-dns.sh</span><br></pre></td></tr></table></figure>
+
+<p>到此DDNS相关设置已经完成，后面需要你做的就是把自己服务相关的端口进行端口转发设置，</p>
+<p>通过自己购买的域名添加上设置的端口就可以访问家中的服务了，这个地方有个前提，需要清楚家里</p>
+<p>的网络连接设置情况，以及你目标服务的网段，如果是多个网段需要进行多次的端口转发。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://blog.vvusu.com">vvusu</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://blog.vvusu.com/posts/cf9eaee7.html">http://blog.vvusu.com/posts/cf9eaee7.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener external nofollow noreferrer" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Proxmox/">Proxmox</a><a class="post-meta__tags" href="/tags/%E8%BD%AF%E8%B7%AF%E7%94%B1/">软路由</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309141907315.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> Donate</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/wechat.jpg" target="_blank"><img class="post-qr-code-img" src="/img/wechat.jpg" alt="微信"/></a><div class="post-qr-code-desc">微信</div></li><li class="reward-item"><a href="/img/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/alipay.png" alt="支付宝"/></a><div class="post-qr-code-desc">支付宝</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/3d1577c4.html" title="Rancher 安装与设置"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309141915354.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Rancher 安装与设置</div></div></a></div><div class="next-post pull-right"><a href="/posts/1d7a6441.html" title="Jenkins fir平台配置"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309200103017.webp" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Jenkins fir平台配置</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/posts/a516d922.html" title="PVE 7 X换源&amp;更换内核"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309142041434.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-06-24</div><div class="title">PVE 7 X换源&amp;更换内核</div></div></a></div><div><a href="/posts/2e3e3ed1.html" title="PVE Automate With Ansible"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309200101668.webp" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-10-10</div><div class="title">PVE Automate With Ansible</div></div></a></div><div><a href="/posts/7c425b60.html" title="PVE 8.0升级"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309120023038.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-07-12</div><div class="title">PVE 8.0升级</div></div></a></div><div><a href="/posts/c546e08f.html" title="PVE ROS软路由系统安装"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309141915823.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-02-11</div><div class="title">PVE ROS软路由系统安装</div></div></a></div><div><a href="/posts/12f703f6.html" title="PVE 安装 OpenWrt 系统"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150130481.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-06-24</div><div class="title">PVE 安装 OpenWrt 系统</div></div></a></div><div><a href="/posts/5e44fd62.html" title="PVE安装HomeAssistant"><img class="cover" src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309150130484.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-10-25</div><div class="title">PVE安装HomeAssistant</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> Comment</span></div></div><div class="comment-wrap"><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.gif" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">vvusu</div><div class="author-info__description">💰省钱小能手 | 技术资深学者 | 👨‍💻科技宅</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">13</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/vvusu"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/vvusu" rel="external nofollow noreferrer" target="_blank" title="Github"><i class="fab fa-github" style="color: #hdhfbb;"></i></a><a class="social-icon" href="mailto:wedxzl@gmail.com" rel="external nofollow noreferrer" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #000000;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f" title="www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f"><img src="/img/default_cover3.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f" title="www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f">www.notion.so/cloudflared-Windows-_-Code-c64531166a294371b38afae638f68b4f</a><time datetime="2023-09-26T02:42:01.279Z" title="Created 2023-09-26 10:42:01">2023-09-26</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-697679b1144d42f08fa900f73122eeea" title="CloudFlare Zero Trust 内网穿透"><img src="/img/default_cover1.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare Zero Trust 内网穿透"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-697679b1144d42f08fa900f73122eeea" title="CloudFlare Zero Trust 内网穿透">CloudFlare Zero Trust 内网穿透</a><time datetime="2023-09-25T16:00:00.000Z" title="Created 2023-09-26 00:00:00">2023-09-26</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-3e596c97a3c3426eb82861d800e1b442" title="CloudFlare Zero Trust"><img src="https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309120023038.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare Zero Trust"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-Zero-Trust-3e596c97a3c3426eb82861d800e1b442" title="CloudFlare Zero Trust">CloudFlare Zero Trust</a><time datetime="2023-09-25T16:00:00.000Z" title="Created 2023-09-26 00:00:00">2023-09-26</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-DDNS-e0055cd81da44ae19129e708270a9d7e" title="CloudFlare DDNS"><img src="/img/default_cover3.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare DDNS"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-DDNS-e0055cd81da44ae19129e708270a9d7e" title="CloudFlare DDNS">CloudFlare DDNS</a><time datetime="2023-09-19T16:00:00.000Z" title="Created 2023-09-20 00:00:00">2023-09-20</time></div></div><div class="aside-list-item"><a class="thumbnail" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-WARP-6ff99060242d45f0bde459e6ab244814" title="CloudFlare WARP 内网穿透"><img src="/img/default_cover3.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="CloudFlare WARP 内网穿透"/></a><div class="content"><a class="title" target="_blank" rel="noopener external nofollow noreferrer" href="https://www.notion.so/CloudFlare-WARP-6ff99060242d45f0bde459e6ab244814" title="CloudFlare WARP 内网穿透">CloudFlare WARP 内网穿透</a><time datetime="2023-09-19T16:00:00.000Z" title="Created 2023-09-20 00:00:00">2023-09-20</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://cdn.jsdelivr.net/gh/vvusu/oss-img/cover/202309141907315.png')"><div id="footer-wrap"><div class="copyright">&copy;2015 - 2023 By vvusu</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">Hi, welcome to my <a target="_blank" rel="noopener external nofollow noreferrer" href="https://butterfly.js.org/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="Switch Between Traditional Chinese And Simplified Chinese">簡</button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><a id="to_comment" href="#post-comment" title="Scroll To Comments"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaid.length === 0) return
+  const runMermaid = () => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from($mermaid).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const loadMermaid = () => {
+    window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+  }
+
+  btf.addModeChange('mermaid', runMermaid)
+
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>function loadDisqus () {
+  const disqus_config = function () {
+    this.page.url = 'http://blog.vvusu.com/posts/cf9eaee7.html'
+    this.page.identifier = '/posts/cf9eaee7.html'
+    this.page.title = 'PVE DDNS外网访问家中服务'
+  }
+
+  const disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  btf.addModeChange('disqus', disqusReset)
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://blog-vvusu-com.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+}
+
+if ('Disqus' === 'Disqus' || !true) {
+  if (true) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">Search</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  Loading the Database</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
